@@ -1,0 +1,11 @@
+.credentials/*
+.config/*
+*.sh
+__pycache__
+*.pyc
+readme.txt
+*.jpg
+*.mp4
+.project
+log/*
+backgrounds/*

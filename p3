@@ -1,0 +1,9 @@
+if [ "$1" = "-d" ];then
+   deactivate garden
+else
+   export WORKON_HOME=/envs
+   export VIRTUALENVWRAPPER_PYTHON=/usr/local/bin/python3
+   export JAVA_HOME=//usr/lib/jvm/java-8-openjdk-armhf
+   source /usr/local/bin/virtualenvwrapper.sh
+   workon garden
+fi
