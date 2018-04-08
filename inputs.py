@@ -1,9 +1,16 @@
-import cv2, math, os, pickle, sdnotify, logging, subprocess
+import logging
+import pickle
+import subprocess
+from datetime import datetime as dt
+
+import cv2
 import moviepy.editor as mpy
 import numpy as np
-from datetime import datetime as dt
 from scipy.io import wavfile
+import threading
+
 from models import *
+
 
 class InputMicrophone(Input):
     def __init__(self):
@@ -25,8 +32,10 @@ class InputMicrophone(Input):
         self.thread.join()
         self.thread = threading.Thread(target=self.record)
 
+
 class MotionDetector(Input):
-    def __init__(self, min_frames, max_frames, min_area, max_silent_frames, notifier, weatherPerson, uploader=None):
+    def __init__(self, min_frames, max_frames, min_area, max_silent_frames, notifier,
+                 weatherPerson, uploader=None):
         self.cam = cv2.VideoCapture(0)
         self.background = None
         self.bgfile = None
@@ -97,13 +106,11 @@ class MotionDetector(Input):
         r = int(self.res[0] * crop_right)
         t = int(self.res[1] * crop_top)
         b = int(self.res[1] * crop_bottom)
-        raw_frame = self.cam.read()[1]
         vid_frames = []
         avg_centroids = []
         total_frames = 0
         total_time = 0
-        usleep = lambda x: time.sleep(x/1000000.0)
-        logging.info("WATCHDOG_USEC="+self.watchdog_usec)
+        logging.info("WATCHDOG_USEC=" + self.watchdog_usec)
         reading = True
         while reading:
             reading, f = self.cam.read()
@@ -117,7 +124,6 @@ class MotionDetector(Input):
             if self.background is None:
                 self.background = imgrey.copy().astype("float")
                 self.save_bg()
-                raw_frame = None
                 logging.info("initialised background")
                 continue
 
@@ -133,7 +139,7 @@ class MotionDetector(Input):
 
             for c in motion:
                 x, y, w, h = cv2.boundingRect(c)
-#                cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                # cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
                 m = cv2.moments(c)
                 cx = int(m['m10'] / m['m00'])
                 frame_centroids.append(cx)
@@ -159,10 +165,11 @@ class MotionDetector(Input):
                 self.silent_frames = 0
                 vid_frames.append(f)
                 avg_centroids.append(np.mean(frame_centroids))
-                if self.moving_frames == 1: logging.info("what was that??")
+                if self.moving_frames == 1:
+                    logging.info("what was that??")
                 logging.info("Chance of rain in 3 hours beginning " + \
-                              str(int(self.weatherPerson.slot/60)).ljust(4,'0') + \
-                              " is " + self.weatherPerson.lastRainForecast + "%")
+                             str(int(self.weatherPerson.slot / 60)).ljust(4, '0') + \
+                             " is " + self.weatherPerson.lastRainForecast + "%")
                 if self.moving_frames == self.min_moving_frames:
                     logging.info("movement detected")
                 if self.moving_frames == self.max_moving_frames:
@@ -173,7 +180,6 @@ class MotionDetector(Input):
                     vid_frames.clear()
                     avg_centroids.clear()
 
-            raw_frame = None
             total_time += (dt.now() - start).microseconds / 1000000
             total_frames += 1
             self.fps = total_frames / total_time

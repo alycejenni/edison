@@ -1,9 +1,10 @@
 import argparse
 import json
-import threading
+import os
 import time
 
 import boto
+import ffmpy
 import httplib2
 import instapush
 import oauth2client
@@ -11,8 +12,6 @@ import requests
 from RPi import GPIO
 from apiclient import discovery
 from oauth2client import client, tools
-import os
-import ffmpy
 
 GPIO.setmode(GPIO.BOARD)
 
@@ -30,9 +29,9 @@ class Notifier(object):
         with open(config_file) as conffile:
             self.config = json.load(conffile)
         self.values = {
-                "value1": time.time(),
-                "value2": "",
-                "value3": "DOG"
+            "value1": time.time(),
+            "value2": "",
+            "value3": "DOG"
             }
 
     def ifttt(self):
@@ -59,15 +58,17 @@ class Uploader(object):
         store = oauth2client.file.Storage(config["credential_path"])
         credentials = store.get()
         if not credentials or credentials.invalid:
-            flow = client.flow_from_clientsecrets(config["client_secret"], config["scopes"])
+            flow = client.flow_from_clientsecrets(config["client_secret"],
+                                                  config["scopes"])
             flow.user_agent = config["app_name"]
-            credentials = tools.run_flow(flow, store, argparse.ArgumentParser(parents=[tools.argparser]).parse_args())
+            credentials = tools.run_flow(flow, store, argparse.ArgumentParser(
+                parents=[tools.argparser]).parse_args())
             print('Storing credentials to ' + config["credential_path"])
         http = credentials.authorize(httplib2.Http())
         service = discovery.build('drive', 'v3', http=http)
         metadata = {
             "name": self.file
-        }
+            }
         service.files().create(body=metadata, media_body=self.file).execute()
         print("uploaded {0} to drive".format(self.file))
 
@@ -136,9 +137,9 @@ class FileHandler(object):
     def convert(self, newtype):
         ff = ffmpy.FFmpeg(inputs={
             self.path: None
-        }, outputs={
+            }, outputs={
             self.path.replace(self.filetype, newtype): None
-        }, global_options=["-nostats -loglevel 0"])
+            }, global_options=["-nostats -loglevel 0"])
         ff.run()
         self.clean()
         self.path = self.path.replace(self.filetype, newtype)
@@ -162,7 +163,7 @@ class FileHandler(object):
                 "value1": time.time(),
                 "value2": "",
                 "value3": ""
-            }
+                }
             if "amazon" in self.services_config:
                 self.uploader.values["value2"] = self.uploader.amazon()
             if "drive" in self.services_config:

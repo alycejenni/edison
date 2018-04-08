@@ -1,10 +1,13 @@
-import logging, signal, argparse, sdnotify, calendar, sys
+import calendar
+import logging
+import sdnotify
+import signal
+import sys
 from datetime import datetime as dt
-from models import Uploader
-from outputs import *
-from inputs import InputMicrophone, MotionDetector
-import metoffice
 
+import metoffice
+from inputs import InputMicrophone, MotionDetector
+from outputs import *
 
 # MANUAL INPUTS
 mic = InputMicrophone()
@@ -14,6 +17,7 @@ configfile = ".config/config.json"
 configfile_video = ".config/config.json"
 servicesfile = ".config/services_1.json"
 
+
 def end_nicely():
     logging.info("quitting nicely")
     motdet.save_bg()
@@ -22,15 +26,18 @@ def end_nicely():
     motdet.file_handler.clean()
     logging.info("bye!")
 
+
 def signal_term_handler(signal, frame):
     logging.warning('got SIGTERM')
     end_nicely()
     sys.exit(0)
 
+
 def signal_abrt_handler(signal, frame):
     logging.warning('got SIGABRT')
     end_nicely()
     sys.exit(0)
+
 
 def stills():
     logging.info("capturing a still image")
@@ -58,23 +65,25 @@ def motion():
     # UPLOADER
     uploader = Uploader(configfile_video)
     global motdet
-    motdet = MotionDetector(5, 100, 1000, 30, notifier, weatherPerson, uploader=(uploader, servicesfile))
+    motdet = MotionDetector(5, 100, 1000, 30, notifier, weatherPerson,
+                            uploader=(uploader, servicesfile))
     if motdet.file_handler.pending:
         motdet.file_handler.run()
     notifier.notify("READY=1")
     motdet.start()
-    sleepingWeatherPerson=0
+    sleepingWeatherPerson = 0
     while True:
         try:
             time.sleep(60)
             if not sleepingWeatherPerson:
-               lastRainForecast = weatherPerson.getPrecipProb()
-               sleepingWeatherPerson = 5
+                lastRainForecast = weatherPerson.getPrecipProb()
+                sleepingWeatherPerson = 5
             else:
-               sleepingWeatherPerson -= 1
+                sleepingWeatherPerson -= 1
         except KeyboardInterrupt:
             end_nicely()
             break
+
 
 if __name__ == '__main__':
     arg_parser = argparse.ArgumentParser()
@@ -86,10 +95,10 @@ if __name__ == '__main__':
 
     today = calendar.day_name[dt.now().weekday()]
     logging.basicConfig(
-        filename=sys.path[0]+"/log/garden." + today + ".log",
+        filename=sys.path[0] + "/log/garden." + today + ".log",
         level=logging.INFO,
         format="%(asctime)s:%(levelname)s:%(message)s"
-    )
+        )
 
     try:
         if args["capture"] == "video":
