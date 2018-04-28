@@ -1,0 +1,14 @@
+[Unit]
+Description=Garden Cam
+After=syslog.target network.target auditd.service sshd.service
+
+[Service]
+Type=forking
+User=a_non_root_user
+ExecStart=/home/a_non_root_user/cam/garden.sh start
+ExecStop=/home/a_non_root_user/cam/garden.sh stop
+Restart=on-watchdog
+WatchdogSec=600
+
+[Install]
+WantedBy=multi-user.target
