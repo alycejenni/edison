@@ -71,7 +71,12 @@ class MotionDetector(Input):
             self.bgfile = fn
             self.save_bg()
 
-        self.res = (640, 480)
+        #self.res = (640, 480)
+        #self.res = (800, 600)
+        res_width = os.environ["RES_WIDTH"]
+        res_height = os.environ["RES_HEIGHT"]
+        self.res = (int(res_width) or 1152, int(res_height) or 648)
+        logging.info("Resolution will be " + str(self.res[0]) + "," + str(self.res[1]))
         self.cam.set(cv2.CAP_PROP_FRAME_WIDTH, self.res[0])
         self.cam.set(cv2.CAP_PROP_FRAME_HEIGHT, self.res[1])
 #       logging.info("Chance of rain is " + self.weatherPerson.lastRainForecast + "%")

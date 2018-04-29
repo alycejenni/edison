@@ -8,7 +8,10 @@ workon garden
 HERE=$(dirname $BASH_SOURCE)
 mkdir -p $HERE/log
 case ${1:-start} in
-   start) python $HERE/main.py -c motion </dev/null >$HERE/log/garden.err 2>&1 &
+   start) rm -rf ${HERE:-xxx}/backgrounds
+          export RES_WIDTH=1024
+          export RES_HEIGHT=576
+          python $HERE/main.py -c motion </dev/null >/home/sissy/cam/log/garden.err 2>&1 &
           ;;
     stop) pkill -f $HERE/main.py ;;
        *) echo "usage is $BASH_SOURCE start/stop" 

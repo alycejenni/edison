@@ -35,7 +35,11 @@ class CameraOutput(Output):
         self.setup()
 
     def setup(self):
-        self.cam.resolution = (640, 480)
+        #self.cam.resolution = (640, 480)
+        #self.cam.resolution = (800, 600)
+        res_width = os.environ["RES_WIDTH"]
+        res_height = os.environ["RES_HEIGHT"]
+        self.cam.resolution = (int(res_width) or 1152, int(res_height) or 648)
         self.cam.iso = 400
 
     def add_dependent(self, dependent):
