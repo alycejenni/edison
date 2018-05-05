@@ -198,8 +198,8 @@ class MotionDetector(Input):
         frames = [cv2.cvtColor(f, cv2.COLOR_BGR2RGB) for f in frames]
         logging.info("making a clip")
         vid = mpy.ImageSequenceClip(frames, fps=self.fps)
-        logging.info("writing a file")
-        vid.write_videofile(self.file_handler.initial)
+        logging.info("writing temp video file " + self.file_handler.initial)
+        vid.write_videofile(self.file_handler.initial, write_logfile=True, threads=2, preset='veryfast')
         logging.info("renaming...")
         self.file_handler.standard()
         self.file_handler.rename()

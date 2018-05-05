@@ -1,6 +1,5 @@
-import picamera
+import picamera,logging
 from models import *
-
 
 class PinOutput(Output):
     def __init__(self, pin, trigger_value):
@@ -23,7 +22,6 @@ class PinOutput(Output):
             self.on()
         else:
             self.off()
-
 
 class CameraOutput(Output):
     def __init__(self, trigger_value, uploader=None):
@@ -53,7 +51,7 @@ class CameraOutput(Output):
         ldr = self.manual_inputs["ldr"]
         s = min([ldr.get * 15, ldr.max_count * 15])
         if ldr.count_exceeded:
-            print('night mode')
+            logging.info('night mode')
             self.cam.iso = 1600
             self.cam.shutter_speed = int(s)
             self.cam.framerate = 20
@@ -68,12 +66,12 @@ class CameraOutput(Output):
         if value == self.trigger_value:
             self.set_shutter()
             time.sleep(1)
-            print("taking picture...")
+            logging.info("taking picture...")
             self.cam.capture(self.file_handler.initial)
-            print("done. " + str(self))
+            logging.info("done. " + str(self))
             for d in self.dependents:
                 d.wait_for_ready()
-            print("renaming/uploading...")
+            logging.info("renaming/uploading...")
             self.file_handler.standard()
             self.file_handler.rename()
             self.file_handler.upload()
@@ -94,20 +92,20 @@ class VideoCameraOutput(CameraOutput):
     def fire(self, value):
         if value == self.trigger_value:
             self.set_shutter()
-            print("starting video...")
+            logging.info("starting video...")
             self.manual_inputs["mic"].get()
             self.cam.start_recording(self.file_handler.initial)
             self.cam.wait_recording(5)
             self.cam.stop_recording()
-            print("finished.")
+            logging.info("finished.")
             for d in self.dependents:
                 d.wait_for_ready()
-            print("renaming...")
+            logging.info("renaming...")
             self.file_handler.standard()
             self.file_handler.rename()
-            print("converting...")
+            logging.info("converting...")
             self.file_handler.convert("mp4")
-            print(self.manual_inputs["mic"].max_amp)
+            logging.info(self.manual_inputs["mic"].max_amp)
             self.file_handler.upload()
             self.file_handler.clean()
 

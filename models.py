@@ -91,10 +91,11 @@ class Uploader(object):
 
 
 class FileHandler(object):
-    def __init__(self, filetype="jpg", uploader=None):
+#   def __init__(self, filetype="jpg", uploader=None):
+    def __init__(self, filetype="mp4", uploader=None):
         self.filetype = filetype
-        self.initial = "temp." + filetype
-        self.path = "temp." + filetype
+        self.initial = "garden." + filetype
+        self.path = "garden." + filetype
         self.direction = 0
         self.filename_set = False
         self.uploader = None
