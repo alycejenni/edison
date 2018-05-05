@@ -1,4 +1,5 @@
 import logging, signal, argparse, sdnotify, calendar, sys
+from logging.handlers import RotatingFileHandler
 from datetime import datetime as dt
 from models import Uploader
 from outputs import *
@@ -64,7 +65,7 @@ def motion():
         motdet.file_handler.run()
     notifier.notify("READY=1")
     motdet.start()
-    sleepingWeatherPerson=0
+#   sleepingWeatherPerson=0
     while True:
         try:
             time.sleep(60)
@@ -86,10 +87,11 @@ if __name__ == '__main__':
     signal.signal(signal.SIGABRT, signal_abrt_handler)
 
     today = calendar.day_name[dt.now().weekday()]
+    logfile = sys.path[0]+"/log/garden." + today + ".log"
+    rotator = RotatingFileHandler(logfile, maxBytes=10485760, backupCount=2)
     logging.basicConfig(
-        filename=sys.path[0]+"/log/garden." + today + ".log",
         level=logging.INFO,
-        format="%(asctime)s:%(levelname)s:%(message)s"
+        format="%(asctime)s:%(levelname)s:(%(threadName)-10s):%(message)s",handlers=[rotator]
     )
 
     try:

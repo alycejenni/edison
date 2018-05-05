@@ -1,14 +1,5 @@
-import argparse
-import json
-import os
-import time
-
-import boto
-import ffmpy
-import httplib2
-import instapush
-import oauth2client
-import requests
+import argparse, json, os, time, logging
+import boto, ffmpy, httplib2, instapush,oauth2client,requests
 from RPi import GPIO
 from apiclient import discovery
 from oauth2client import client, tools
@@ -37,13 +28,13 @@ class Notifier(object):
     def ifttt(self):
         config = self.config["ifttt"]
         requests.post(config["url"], self.values)
-        print("notified via ifttt")
+        logging.info("notified via ifttt")
 
     def instapush(self):
         config = self.config["instapush"]
         app = instapush.App(config["id"], config["secret"])
         app.notify(config["event"], self.values)
-        print("notified via instapush")
+        logging.info("notified via instapush")
 
 
 class Uploader(object):
@@ -63,35 +54,36 @@ class Uploader(object):
             flow.user_agent = config["app_name"]
             credentials = tools.run_flow(flow, store, argparse.ArgumentParser(
                 parents=[tools.argparser]).parse_args())
-            print('Storing credentials to ' + config["credential_path"])
+            logging.info('Storing credentials to ' + config["credential_path"])
         http = credentials.authorize(httplib2.Http())
         service = discovery.build('drive', 'v3', http=http)
         metadata = {
             "name": self.file
             }
         service.files().create(body=metadata, media_body=self.file).execute()
-        print("uploaded {0} to drive".format(self.file))
+        logging.info("uploaded {0} to drive".format(self.file))
 
     def ifttt(self):
         config = self.config["ifttt"]
         requests.post(config["url"], self.values)
-        print("notified via ifttt")
+        logging.info("notified via ifttt")
 
     def instapush(self):
         config = self.config["instapush"]
         app = instapush.App(config["id"], config["secret"])
         app.notify(config["event"], self.values)
-        print("notified via instapush")
+        logging.info("notified via instapush")
 
     def amazon(self):
         config = self.config["amazon"]
         s3 = boto.connect_s3(host=config["host"])
         bucket = s3.get_bucket(config["bucket"])
+        logging.info("uploading {0} to amazon s3".format(self.file))
         key = bucket.new_key(self.file)
         key.set_contents_from_filename(self.file)
         key.set_acl(config["acl"])
         photo_url = key.generate_url(expires_in=0, query_auth=False)
-        print("uploaded {0} to amazon s3".format(self.file))
+        logging.info("done uploading")
         return photo_url
 
     def cleanup(self):
@@ -190,7 +182,7 @@ class Output(object):
             self.manual_inputs[name] = manual_input
 
     def fire(self, value):
-        print("fired")
+        logging.info("fired")
 
 
 class Input(object):

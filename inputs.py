@@ -41,7 +41,7 @@ class MotionDetector(Input):
         self.silent_frames = 0
         self.cont = True
         self.fps = 30
-        self.thread = threading.Thread(target=self.checktrigger)
+        self.thread = threading.Thread(name='checktrigger',target=self.checktrigger)
         self.file_handler = FileHandler(filetype="mp4", uploader=uploader)
         self.notifier = notifier
 #       self.weatherPerson = weatherPerson
@@ -190,18 +190,21 @@ class MotionDetector(Input):
         logging.info("camera closed, thread terminated")
 
     def make_vid(self, frames, centroids):
+        logging.info("Starting make_vid")
         direction = 1 if centroids[0] > centroids[-1] else 0
         if centroids[0] == centroids[-1]:
             direction = 2
         self.file_handler.set_direction(direction)
-        logging.info("converting with ffmpeg...")
         frames = [cv2.cvtColor(f, cv2.COLOR_BGR2RGB) for f in frames]
+        logging.info("making a clip")
         vid = mpy.ImageSequenceClip(frames, fps=self.fps)
+        logging.info("writing a file")
         vid.write_videofile(self.file_handler.initial)
         logging.info("renaming...")
         self.file_handler.standard()
         self.file_handler.rename()
         self.file_handler.upload()
         self.file_handler.clean()
+        logging.info("Ended make_vid")
 
 # End
