@@ -60,7 +60,12 @@ def motion():
     uploader = Uploader(configfile_video)
     global motdet
 #   motdet = MotionDetector(5, 100, 1000, 30, notifier, weatherPerson, uploader=(uploader, servicesfile))
-    motdet = MotionDetector(5, 100, 1000, 30, notifier, uploader=(uploader, servicesfile))
+    motdet = MotionDetector(min_frames=5,
+                            max_frames=300,
+                            min_area=1000,
+                            max_silent_frames=30,
+                            notifier=notifier,
+                            uploader=(uploader, servicesfile))
     if motdet.file_handler.pending:
         motdet.file_handler.run()
     notifier.notify("READY=1")

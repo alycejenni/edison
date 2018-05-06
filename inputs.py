@@ -173,7 +173,7 @@ class MotionDetector(Input):
                 if self.moving_frames == self.min_moving_frames:
                     logging.info("movement detected")
                 if self.moving_frames == self.max_moving_frames:
-                    logging.warning("this has been going on too long, stopping")
+                    logging.warning("exceeded maximum moving frames threshold " + str(self.max_moving_frames))
                     self.make_vid(vid_frames, avg_centroids)
                     self.save_bg()
                     self.moving_frames = 0
@@ -196,7 +196,7 @@ class MotionDetector(Input):
             direction = 2
         self.file_handler.set_direction(direction)
         frames = [cv2.cvtColor(f, cv2.COLOR_BGR2RGB) for f in frames]
-        logging.info("making a clip")
+        logging.info("making a clip of " + str(len(frames)) + " frames")
         vid = mpy.ImageSequenceClip(frames, fps=self.fps)
         logging.info("writing temp video file " + self.file_handler.initial)
         vid.write_videofile(self.file_handler.initial, write_logfile=True, threads=2, preset='veryfast')
