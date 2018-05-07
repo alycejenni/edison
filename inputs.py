@@ -190,20 +190,38 @@ class MotionDetector(Input):
         logging.info("camera closed, thread terminated")
 
     def make_vid(self, frames, centroids):
-        logging.info("Starting make_vid")
+        logging.info("Starting make_vid (" + str(len(frames)) + " frames)")
         direction = 1 if centroids[0] > centroids[-1] else 0
         if centroids[0] == centroids[-1]:
             direction = 2
         self.file_handler.set_direction(direction)
-        frames = [cv2.cvtColor(f, cv2.COLOR_BGR2RGB) for f in frames]
-        logging.info("making a clip of " + str(len(frames)) + " frames")
-        vid = mpy.ImageSequenceClip(frames, fps=self.fps)
+        #frames = [cv2.cvtColor(f, cv2.COLOR_BGR2RGB) for f in frames]
+        new_frames = []
+        for f in frames:
+            try:
+               new_frames.append(cv2.cvtColor(f, cv2.COLOR_BGR2RGB))
+            except:
+               logging.warning("Unable to recolour a frame")
+       
+        if len(new_frames) == 0:
+           logging.warning("no frames left to make a clip from, abandoning")
+           return
+        logging.info("making a clip of " + str(len(new_frames)) + " processed frames")
+        vid = mpy.ImageSequenceClip(new_frames, fps=self.fps)
         logging.info("writing temp video file " + self.file_handler.initial)
-        vid.write_videofile(self.file_handler.initial, write_logfile=True, threads=2, preset='veryfast')
-        logging.info("renaming...")
-        self.file_handler.standard()
-        self.file_handler.rename()
-        self.file_handler.upload()
+        done_writing = False
+        try:
+           vid.write_videofile(self.file_handler.initial, write_logfile=True, threads=2, progress_bar=False, preset='veryfast')
+           done_writing = True
+        except:
+           logging.info("Unable to complete write_videofile")
+        if done_writing:
+           logging.info("renaming...")
+           self.file_handler.standard()
+           self.file_handler.rename()
+           self.file_handler.upload()
+
+        del vid
         self.file_handler.clean()
         logging.info("Ended make_vid")
 
