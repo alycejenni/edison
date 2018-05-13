@@ -2,6 +2,7 @@ import cv2, math, os, pickle, sdnotify, logging, subprocess
 import moviepy.editor as mpy
 import numpy as np
 import threading
+import gc
 from datetime import datetime as dt
 from scipy.io import wavfile
 from models import *
@@ -206,7 +207,8 @@ class MotionDetector(Input):
         if len(new_frames) == 0:
            logging.warning("no frames left to make a clip from, abandoning")
            return
-        logging.info("making a clip of " + str(len(new_frames)) + " processed frames")
+        frames = new_frames
+        logging.info("making a clip of " + str(len(frames)) + " processed frames")
         vid = mpy.ImageSequenceClip(new_frames, fps=self.fps)
         logging.info("writing temp video file " + self.file_handler.initial)
         done_writing = False
@@ -223,6 +225,7 @@ class MotionDetector(Input):
 
         del vid
         self.file_handler.clean()
+        gc.collect()
         logging.info("Ended make_vid")
 
 # End
