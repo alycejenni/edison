@@ -21,7 +21,7 @@ picamera==1.13
 pyasn1-modules==0.2.1
 pyasn1==0.4.2
 pyparsing==2.2.0
-requests==2.18.4
+requests==2.20.0
 rsa==3.4.2
 scipy==0.19.1
 sdnotify==0.3.2
