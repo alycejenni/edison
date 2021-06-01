@@ -28,4 +28,4 @@ sdnotify==0.3.2
 six==1.11.0
 tqdm==4.11.2
 uritemplate==3.0.0
-urllib3==1.22
+urllib3==1.26.5
