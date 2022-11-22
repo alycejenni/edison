@@ -1,4 +1,4 @@
-Pillow==5.1.0
+Pillow==9.3.0
 RPi.GPIO==0.6.3
 apiclient==1.0.3
 appdirs==1.4.3
