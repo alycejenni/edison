@@ -3,7 +3,7 @@ RPi.GPIO==0.6.3
 apiclient==1.0.3
 appdirs==1.4.3
 boto==2.48.0
-certifi==2018.1.18
+certifi==2022.12.7
 chardet==3.0.4
 decorator==4.0.11
 ffmpy==0.2.2
